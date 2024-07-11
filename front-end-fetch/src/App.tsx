@@ -1,44 +1,52 @@
 
-import { useEffect, useState } from 'react'
-import './App.css'
-import { createNewPost, getAllPosts } from './service'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Col, Pagination, Row } from 'react-bootstrap';
+import Post from './components/Post';
+import { useEffect, useState } from 'react';
+import { IPost } from './interface';
 
-interface Post{
-  title: string;
-}
+import { getPostWithPaginate } from './service/post';
 function App() {
-  const [data, setData] = useState<Post[]>([]);
-  // Fetch API là gì ? : dùng để gửi request và nhận response trả về từ các API
+  const [posts, setPosts] = useState<IPost[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [postsPerPage] = useState(9);
 
-  // fetch(); // trả về 1 Promise -> dùng cơ chế .then, .catch để xử lý , kết async await để xử lí bất đồng bộ
   useEffect(() => {
-    // call api   get
-      const data = getAllPosts();
-      data.then((data) => {
-        console.log(data);
-        setData(data);
-      }).catch(err=>{
-        console.log("err"+err);
-        
-      })
+    console.log(currentPage);
+    
+    // thuwjc hien call api lay ra danh sach trang dau tien
+    getPostWithPaginate(currentPage, postsPerPage)
+      .then(data => {
+        setPosts(data);
+      }).catch(error => console.log(error))
 
-      // call post 
-      // const data = {
-      //   "userId": 2,
-      //   "title": "Tâm Anh ngủ quên ",
-      //   "body": "Do thức khuya + lười đi học"
-      // }
+  }, [currentPage])
 
-      // createNewPost(data)
-      // .then(data=>{
-      //   console.log("new data");
-      //   console.log(data);    
-      // })
-  }, [])
+  const totalPages = Math.ceil(100 / 9)
+
   return (
-    <>
-      {data.map((d, index)=> <li key={index}>{d.title}</li>)}
-    </>
+    <div className='container mt-3'>
+      <Row>
+        {
+          posts.map(post =>
+            <Col key={post.id} className='mt-4' sm={4}><Post data={post} /></Col>
+          )
+        }
+
+      </Row>
+      <div className='pagination mt-4 d-flex justify-content-end'>
+        <Pagination size='lg'>
+          {
+            Array.from(new Array(totalPages), (_, index) => index + 1).map((page, index) =>
+              <Pagination.Item key={page} active={page === currentPage} onClick={()=>setCurrentPage(page)}>
+                {page}
+              </Pagination.Item>
+            )
+          }
+
+        </Pagination>
+      </div>
+    </div>
   )
 }
 

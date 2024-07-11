@@ -1,3 +1,4 @@
+import axios from "axios";
 
 
 // lấy dũ liệu bài đăng
@@ -53,4 +54,17 @@ export const updateFullPost = async (dataUp: {}, id : number)=>{
         body: JSON.stringify(dataUp)
     })
     return response.json();
+}
+
+
+export const login = async()=>{
+    let username = "hunghx";
+    let password = "123456";
+    const res = await axios.post("http://localhost:9090/api.com/v1/auth/sign-in",
+        {username,password},{
+            headers: {
+                'Content-Type': 'application/json'     
+            }
+        })
+        return res;
 }
